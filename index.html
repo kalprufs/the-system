@@ -347,6 +347,32 @@
             font-size: 12px;
             margin-left: 8px;
         }
+
+        .import-export-controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .import-btn {
+            background: #333;
+            color: #ffffff;
+            border: 1px solid #555;
+            padding: 12px 18px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            font-family: inherit;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: all 0.2s ease;
+        }
+        
+        .import-btn:hover {
+            background: #444;
+            border-color: #666;
+        }
+        
     </style>
 </head>
 <body>
@@ -455,6 +481,11 @@
         </div>
         
         <div id="viewTab" class="content hidden">
+            <div class="import-export-controls">
+                <button class="import-btn" onclick="document.getElementById('fileInput').click()">Import</button>
+                <input type="file" id="fileInput" accept=".json" style="display: none;">
+                <button class="import-btn" onclick="exportData()">Export</button>
+            </div>
             <div class="stats" id="stats"></div>
             <div id="entriesList"></div>
         </div>
@@ -462,7 +493,6 @@
 
     <script>
         let entries = [];
-        let selectedMood = '';
 
         // Initialize app
         document.addEventListener('DOMContentLoaded', function() {
@@ -470,8 +500,38 @@
             loadEntries();
             setupMoodSelector();
             setupForm();
+            setupFileImport();
             updateViewTab();
         });
+
+        // Add a new function to handle file import
+        function setupFileImport() {
+            document.getElementById('fileInput').addEventListener('change', importData);
+        }
+
+        function importData(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const importedEntries = JSON.parse(e.target.result);
+                    if (Array.isArray(importedEntries)) {
+                        entries = entries.concat(importedEntries);
+                        saveEntries();
+                        updateViewTab();
+                        alert('Data imported successfully!');
+                    } else {
+                        alert('Invalid JSON file. Please select a file with an array of entries.');
+                    }
+                } catch (error) {
+                    console.error('Error importing file:', error);
+                    alert('An error occurred while importing the file. Please check the file format.');
+                }
+            };
+            reader.readAsText(file);
+        }
 
         function setupMoodSelector() {
             const moodButtons = document.querySelectorAll('.mood-btn');
@@ -479,7 +539,6 @@
                 btn.addEventListener('click', function() {
                     moodButtons.forEach(b => b.classList.remove('selected'));
                     this.classList.add('selected');
-                    selectedMood = this.dataset.mood;
                 });
             });
         }
@@ -511,6 +570,8 @@
                         return amount !== 0 || reason ? { amount, reason } : null;
                     })
                     .filter(transaction => transaction);
+                
+                const selectedMood = document.querySelector('.mood-btn.selected')?.dataset.mood || '';
                 
                 const entry = {
                     id: Date.now(),
@@ -600,7 +661,6 @@
             document.querySelectorAll('.mood-btn').forEach(btn => {
                 btn.classList.remove('selected');
             });
-            selectedMood = '';
             
             // Reset all dynamic input lists to just one input
             resetInputList('locationsList', 'location-input', 'Home, office, downtown...');
@@ -639,30 +699,28 @@
 
         function saveEntries() {
             const data = JSON.stringify(entries);
-            // Note: Using in-memory storage for demo - replace with backend in production
-            // localStorage.setItem('dailyLogEntries', data);
+            localStorage.setItem('dailyLogEntries', data);
         }
 
         function loadEntries() {
-            // Note: Using in-memory storage for demo - replace with backend in production
-            // const savedData = localStorage.getItem('dailyLogEntries');
-            // if (savedData) {
-            //     try {
-            //         entries = JSON.parse(savedData);
-            //     } catch (error) {
-            //         console.error('Error loading entries:', error);
-            //         entries = [];
-            //     }
-            // } else {
+            const savedData = localStorage.getItem('dailyLogEntries');
+            if (savedData) {
+                try {
+                    entries = JSON.parse(savedData);
+                } catch (error) {
+                    console.error('Error loading entries:', error);
+                    entries = [];
+                }
+            } else {
                 entries = [];
-            // }
+            }
         }
 
         function showTab(tabName) {
             document.querySelectorAll('.tab').forEach(tab => {
                 tab.classList.remove('active');
             });
-            event.target.classList.add('active');
+            document.querySelector(`.tab[onclick="showTab('${tabName}')"]`).classList.add('active');
             
             if (tabName === 'add') {
                 document.getElementById('addTab').classList.remove('hidden');
@@ -779,7 +837,7 @@
                         <span class="entry-label">Money:</span>
                         <div class="entry-value">
                             <ul class="entry-list">
-                                ${entry.moneyTransactions.map(t => `<li>${t.amount.toFixed(2)} - ${t.reason || 'No description'}</li>`).join('')}
+                                ${entry.moneyTransactions.map(t => `<li>$${t.amount.toFixed(2)} - ${t.reason || 'No description'}</li>`).join('')}
                             </ul>
                         </div>
                     </div>`;
