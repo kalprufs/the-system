@@ -1,0 +1,842 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
+            background: #0a0a0a;
+            color: #e0e0e0;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 700px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            background: #1a1a1a;
+            padding: 30px;
+            border-radius: 4px;
+            border: 1px solid #333;
+        }
+        
+        .header h1 {
+            font-size: 20px;
+            font-weight: 400;
+            color: #ffffff;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+        
+        .tabs {
+            display: flex;
+            margin-bottom: 30px;
+            background: #1a1a1a;
+            border-radius: 4px;
+            border: 1px solid #333;
+            overflow: hidden;
+        }
+        
+        .tab {
+            flex: 1;
+            padding: 18px 24px;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 400;
+            font-family: inherit;
+            color: #888;
+            transition: all 0.2s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .tab.active {
+            background: #2a2a2a;
+            color: #ffffff;
+            border-bottom: 2px solid #666;
+        }
+        
+        .tab:hover:not(.active) {
+            background: #222;
+            color: #ccc;
+        }
+        
+        .content {
+            background: #1a1a1a;
+            border-radius: 4px;
+            padding: 40px;
+            border: 1px solid #333;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .form-group {
+            margin-bottom: 30px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 12px;
+            font-weight: 400;
+            color: #ccc;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        input, textarea, select {
+            width: 100%;
+            padding: 14px 16px;
+            background: #0f0f0f;
+            border: 1px solid #444;
+            border-radius: 4px;
+            font-size: 14px;
+            font-family: inherit;
+            color: #e0e0e0;
+            transition: border-color 0.2s ease;
+        }
+        
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: #666;
+            background: #111;
+        }
+        
+        input::placeholder, textarea::placeholder {
+            color: #555;
+        }
+        
+        textarea {
+            height: 100px;
+            resize: vertical;
+        }
+        
+        .mood-selector {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        
+        .mood-btn {
+            padding: 12px 20px;
+            border: 1px solid #444;
+            border-radius: 4px;
+            background: #0f0f0f;
+            cursor: pointer;
+            font-size: 12px;
+            font-family: inherit;
+            color: #888;
+            transition: all 0.2s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .mood-btn:hover {
+            border-color: #666;
+            color: #ccc;
+        }
+        
+        .mood-btn.selected {
+            border-color: #666;
+            background: #2a2a2a;
+            color: #ffffff;
+        }
+        
+        .submit-btn {
+            width: 100%;
+            padding: 18px;
+            background: #333;
+            color: #ffffff;
+            border: 1px solid #555;
+            border-radius: 4px;
+            font-size: 14px;
+            font-weight: 400;
+            font-family: inherit;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .submit-btn:hover {
+            background: #444;
+            border-color: #666;
+        }
+        
+        .success-msg {
+            background: #1a2e1a;
+            color: #90ee90;
+            padding: 16px;
+            border-radius: 4px;
+            margin-bottom: 30px;
+            text-align: center;
+            border: 1px solid #2a4a2a;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: none;
+        }
+        
+        .entry {
+            background: #111;
+            border-radius: 4px;
+            padding: 24px;
+            margin-bottom: 20px;
+            border: 1px solid #333;
+            border-left: 3px solid #555;
+        }
+        
+        .entry-date {
+            font-weight: 400;
+            color: #ffffff;
+            margin-bottom: 16px;
+            font-size: 16px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .entry-field {
+            margin-bottom: 12px;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+        
+        .entry-label {
+            font-weight: 400;
+            color: #888;
+            min-width: 100px;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .entry-value {
+            color: #ccc;
+            font-size: 14px;
+            flex: 1;
+        }
+        
+        .no-entries {
+            text-align: center;
+            color: #666;
+            padding: 60px;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .stats {
+            background: #111;
+            padding: 20px;
+            border-radius: 4px;
+            margin-bottom: 30px;
+            text-align: center;
+            border: 1px solid #333;
+            font-size: 14px;
+            color: #ccc;
+        }
+        
+        .add-btn {
+            background: #1a1a1a;
+            border: 1px solid #444;
+            color: #888;
+            padding: 12px 18px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            font-family: inherit;
+            margin-top: 12px;
+            transition: all 0.2s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .add-btn:hover {
+            background: #222;
+            border-color: #555;
+            color: #ccc;
+        }
+        
+        .input-row, .money-row {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 12px;
+            align-items: center;
+        }
+        
+        .money-row input {
+            margin-bottom: 0;
+        }
+        
+        .money-amount {
+            flex: 1;
+        }
+        
+        .money-reason {
+            flex: 2;
+        }
+        
+        .remove-btn {
+            background: #2a1a1a;
+            color: #ff6b6b;
+            border: 1px solid #4a2a2a;
+            padding: 8px 14px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 11px;
+            font-family: inherit;
+            white-space: nowrap;
+            transition: all 0.2s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .remove-btn:hover {
+            background: #3a2222;
+            border-color: #5a3333;
+        }
+        
+        .entry-list {
+            list-style: none;
+        }
+        
+        .entry-list li {
+            margin-bottom: 8px;
+            color: #ccc;
+        }
+        
+        .entry-list li::before {
+            content: "→ ";
+            color: #666;
+            margin-right: 8px;
+        }
+        
+        .entry.collapsed {
+            cursor: pointer;
+        }
+        
+        .entry.collapsed .entry-details {
+            display: none;
+        }
+        
+        .entry.collapsed:hover {
+            background: #191919;
+        }
+        
+        .expand-indicator {
+            color: #666;
+            font-size: 12px;
+            margin-left: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>The System</h1>
+        </div>
+        
+        <div class="tabs">
+            <button class="tab active" onclick="showTab('add')">Add Entry</button>
+            <button class="tab" onclick="showTab('view')">View Entries</button>
+        </div>
+        
+        <div id="addTab" class="content">
+            <div class="success-msg" id="successMsg">Entry recorded</div>
+            
+            <form id="logForm">
+                <div class="form-group">
+                    <label for="date">Date</label>
+                    <input type="date" id="date" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>Sleep Schedule</label>
+                    <div style="display: flex; gap: 12px;">
+                        <div style="flex: 1;">
+                            <input type="time" id="wakeTime" placeholder="Wake time">
+                            <label for="wakeTime" style="font-size: 11px; margin-top: 4px; text-transform: none; letter-spacing: 0;">Wake</label>
+                        </div>
+                        <div style="flex: 1;">
+                            <input type="time" id="sleepTime" placeholder="Sleep time">
+                            <label for="sleepTime" style="font-size: 11px; margin-top: 4px; text-transform: none; letter-spacing: 0;">Sleep</label>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>Meals</label>
+                    <div id="mealsList">
+                        <div class="input-row">
+                            <input type="text" class="meal-input" placeholder="Breakfast, lunch, dinner...">
+                        </div>
+                    </div>
+                    <button type="button" class="add-btn" onclick="addMealInput()">+ Add meal</button>
+                </div>
+                
+                <div class="form-group">
+                    <label>Snacks</label>
+                    <div id="snacksList">
+                        <div class="input-row">
+                            <input type="text" class="snack-input" placeholder="Coffee, fruit, nuts...">
+                        </div>
+                    </div>
+                    <button type="button" class="add-btn" onclick="addSnackInput()">+ Add snack</button>
+                </div>
+                
+                <div class="form-group">
+                    <label>Locations</label>
+                    <div id="locationsList">
+                        <div class="input-row">
+                            <input type="text" class="location-input" placeholder="Home, office, downtown...">
+                        </div>
+                    </div>
+                    <button type="button" class="add-btn" onclick="addLocationInput()">+ Add location</button>
+                </div>
+                
+                <div class="form-group">
+                    <label>Activities</label>
+                    <div id="activitiesList">
+                        <div class="input-row">
+                            <input type="text" class="activity-input" placeholder="Work, exercise, reading...">
+                        </div>
+                    </div>
+                    <button type="button" class="add-btn" onclick="addActivityInput()">+ Add activity</button>
+                </div>
+                
+                <div class="form-group">
+                    <label>Money</label>
+                    <div id="moneyList">
+                        <div class="money-row">
+                            <input type="number" class="money-amount" step="0.01" placeholder="Amount">
+                            <input type="text" class="money-reason" placeholder="Coffee, transport, income...">
+                        </div>
+                    </div>
+                    <button type="button" class="add-btn" onclick="addMoneyInput()">+ Add transaction</button>
+                </div>
+                
+                <div class="form-group">
+                    <label>State</label>
+                    <div class="mood-selector">
+                        <button type="button" class="mood-btn" data-mood="Excellent">Excellent</button>
+                        <button type="button" class="mood-btn" data-mood="Good">Good</button>
+                        <button type="button" class="mood-btn" data-mood="Neutral">Neutral</button>
+                        <button type="button" class="mood-btn" data-mood="Poor">Poor</button>
+                        <button type="button" class="mood-btn" data-mood="Difficult">Difficult</button>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="notes">Notes</label>
+                    <textarea id="notes" placeholder="Additional observations..."></textarea>
+                </div>
+                
+                <button type="submit" class="submit-btn">Record Entry</button>
+            </form>
+        </div>
+        
+        <div id="viewTab" class="content hidden">
+            <div class="stats" id="stats"></div>
+            <div id="entriesList"></div>
+        </div>
+    </div>
+
+    <script>
+        let entries = [];
+        let selectedMood = '';
+
+        // Initialize app
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('date').valueAsDate = new Date();
+            loadEntries();
+            setupMoodSelector();
+            setupForm();
+            updateViewTab();
+        });
+
+        function setupMoodSelector() {
+            const moodButtons = document.querySelectorAll('.mood-btn');
+            moodButtons.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    moodButtons.forEach(b => b.classList.remove('selected'));
+                    this.classList.add('selected');
+                    selectedMood = this.dataset.mood;
+                });
+            });
+        }
+
+        function setupForm() {
+            document.getElementById('logForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const locations = Array.from(document.querySelectorAll('.location-input'))
+                    .map(input => input.value.trim())
+                    .filter(value => value);
+                
+                const activities = Array.from(document.querySelectorAll('.activity-input'))
+                    .map(input => input.value.trim())
+                    .filter(value => value);
+                
+                const meals = Array.from(document.querySelectorAll('.meal-input'))
+                    .map(input => input.value.trim())
+                    .filter(value => value);
+                
+                const snacks = Array.from(document.querySelectorAll('.snack-input'))
+                    .map(input => input.value.trim())
+                    .filter(value => value);
+                
+                const moneyTransactions = Array.from(document.querySelectorAll('.money-row'))
+                    .map(row => {
+                        const amount = parseFloat(row.querySelector('.money-amount').value) || 0;
+                        const reason = row.querySelector('.money-reason').value.trim();
+                        return amount !== 0 || reason ? { amount, reason } : null;
+                    })
+                    .filter(transaction => transaction);
+                
+                const entry = {
+                    id: Date.now(),
+                    date: document.getElementById('date').value,
+                    wakeTime: document.getElementById('wakeTime').value,
+                    sleepTime: document.getElementById('sleepTime').value,
+                    locations: locations,
+                    activities: activities,
+                    meals: meals,
+                    snacks: snacks,
+                    moneyTransactions: moneyTransactions,
+                    mood: selectedMood,
+                    notes: document.getElementById('notes').value
+                };
+                
+                entries.push(entry);
+                saveEntries();
+                showSuccessMessage();
+                resetForm();
+                updateViewTab();
+            });
+        }
+
+        function addLocationInput() {
+            const locationsList = document.getElementById('locationsList');
+            const newRow = document.createElement('div');
+            newRow.className = 'input-row';
+            newRow.innerHTML = `
+                <input type="text" class="location-input" placeholder="Location...">
+                <button type="button" class="remove-btn" onclick="removeRow(this)">Remove</button>
+            `;
+            locationsList.appendChild(newRow);
+        }
+
+        function addActivityInput() {
+            const activitiesList = document.getElementById('activitiesList');
+            const newRow = document.createElement('div');
+            newRow.className = 'input-row';
+            newRow.innerHTML = `
+                <input type="text" class="activity-input" placeholder="Activity...">
+                <button type="button" class="remove-btn" onclick="removeRow(this)">Remove</button>
+            `;
+            activitiesList.appendChild(newRow);
+        }
+
+        function addMealInput() {
+            const mealsList = document.getElementById('mealsList');
+            const newRow = document.createElement('div');
+            newRow.className = 'input-row';
+            newRow.innerHTML = `
+                <input type="text" class="meal-input" placeholder="Meal...">
+                <button type="button" class="remove-btn" onclick="removeRow(this)">Remove</button>
+            `;
+            mealsList.appendChild(newRow);
+        }
+
+        function addSnackInput() {
+            const snacksList = document.getElementById('snacksList');
+            const newRow = document.createElement('div');
+            newRow.className = 'input-row';
+            newRow.innerHTML = `
+                <input type="text" class="snack-input" placeholder="Snack...">
+                <button type="button" class="remove-btn" onclick="removeRow(this)">Remove</button>
+            `;
+            snacksList.appendChild(newRow);
+        }
+
+        function addMoneyInput() {
+            const moneyList = document.getElementById('moneyList');
+            const newRow = document.createElement('div');
+            newRow.className = 'money-row';
+            newRow.innerHTML = `
+                <input type="number" class="money-amount" step="0.01" placeholder="Amount">
+                <input type="text" class="money-reason" placeholder="Description...">
+                <button type="button" class="remove-btn" onclick="removeRow(this)">Remove</button>
+            `;
+            moneyList.appendChild(newRow);
+        }
+
+        function removeRow(button) {
+            button.parentElement.remove();
+        }
+
+        function resetForm() {
+            document.getElementById('logForm').reset();
+            document.getElementById('date').valueAsDate = new Date();
+            document.querySelectorAll('.mood-btn').forEach(btn => {
+                btn.classList.remove('selected');
+            });
+            selectedMood = '';
+            
+            // Reset all dynamic input lists to just one input
+            resetInputList('locationsList', 'location-input', 'Home, office, downtown...');
+            resetInputList('activitiesList', 'activity-input', 'Work, exercise, reading...');
+            resetInputList('mealsList', 'meal-input', 'Breakfast, lunch, dinner...');
+            resetInputList('snacksList', 'snack-input', 'Coffee, fruit, nuts...');
+            resetMoneyList();
+        }
+        
+        function resetInputList(containerId, inputClass, placeholder) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = `
+                <div class="input-row">
+                    <input type="text" class="${inputClass}" placeholder="${placeholder}">
+                </div>
+            `;
+        }
+        
+        function resetMoneyList() {
+            const moneyList = document.getElementById('moneyList');
+            moneyList.innerHTML = `
+                <div class="money-row">
+                    <input type="number" class="money-amount" step="0.01" placeholder="Amount">
+                    <input type="text" class="money-reason" placeholder="Coffee, transport, income...">
+                </div>
+            `;
+        }
+
+        function showSuccessMessage() {
+            const msg = document.getElementById('successMsg');
+            msg.style.display = 'block';
+            setTimeout(() => {
+                msg.style.display = 'none';
+            }, 2000);
+        }
+
+        function saveEntries() {
+            const data = JSON.stringify(entries);
+            // Note: Using in-memory storage for demo - replace with backend in production
+            // localStorage.setItem('dailyLogEntries', data);
+        }
+
+        function loadEntries() {
+            // Note: Using in-memory storage for demo - replace with backend in production
+            // const savedData = localStorage.getItem('dailyLogEntries');
+            // if (savedData) {
+            //     try {
+            //         entries = JSON.parse(savedData);
+            //     } catch (error) {
+            //         console.error('Error loading entries:', error);
+            //         entries = [];
+            //     }
+            // } else {
+                entries = [];
+            // }
+        }
+
+        function showTab(tabName) {
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            if (tabName === 'add') {
+                document.getElementById('addTab').classList.remove('hidden');
+                document.getElementById('viewTab').classList.add('hidden');
+            } else {
+                document.getElementById('addTab').classList.add('hidden');
+                document.getElementById('viewTab').classList.remove('hidden');
+                updateViewTab();
+            }
+        }
+
+        function updateViewTab() {
+            updateStats();
+            displayEntries();
+        }
+
+        function updateStats() {
+            const statsDiv = document.getElementById('stats');
+            const totalEntries = entries.length;
+            
+            const totalMoney = entries.reduce((sum, entry) => {
+                return sum + (entry.moneyTransactions?.reduce((entrySum, transaction) => 
+                    entrySum + transaction.amount, 0) || 0);
+            }, 0);
+            
+            statsDiv.innerHTML = `
+                ENTRIES: ${totalEntries} &nbsp;|&nbsp; NET: $${totalMoney.toFixed(2)}
+            `;
+        }
+
+        function displayEntries() {
+            const entriesDiv = document.getElementById('entriesList');
+            
+            if (entries.length === 0) {
+                entriesDiv.innerHTML = '<div class="no-entries">No entries recorded</div>';
+                return;
+            }
+            
+            const sortedEntries = entries.sort((a, b) => new Date(b.date) - new Date(a.date));
+            
+            const entriesHTML = sortedEntries.map(entry => {
+                const hasDetails = entry.wakeTime || entry.sleepTime || 
+                    (entry.locations && entry.locations.length > 0) ||
+                    (entry.activities && entry.activities.length > 0) ||
+                    (entry.meals && entry.meals.length > 0) ||
+                    (entry.snacks && entry.snacks.length > 0) ||
+                    (entry.moneyTransactions && entry.moneyTransactions.length > 0) ||
+                    entry.mood || entry.notes;
+                
+                let html = `<div class="entry collapsed" onclick="toggleEntry(${entry.id})">
+                    <div class="entry-date">
+                        ${formatDate(entry.date)}
+                        ${hasDetails ? '<span class="expand-indicator">▼</span>' : ''}
+                    </div>
+                    <div class="entry-details">`;
+                
+                if (entry.wakeTime || entry.sleepTime) {
+                    html += `<div class="entry-field">
+                        <span class="entry-label">Sleep:</span>
+                        <span class="entry-value">
+                            ${entry.wakeTime ? `Wake ${entry.wakeTime}` : ''}
+                            ${entry.wakeTime && entry.sleepTime ? ' | ' : ''}
+                            ${entry.sleepTime ? `Sleep ${entry.sleepTime}` : ''}
+                        </span>
+                    </div>`;
+                }
+                
+                if (entry.locations && entry.locations.length > 0) {
+                    html += `<div class="entry-field">
+                        <span class="entry-label">Locations:</span>
+                        <div class="entry-value">
+                            <ul class="entry-list">
+                                ${entry.locations.map(loc => `<li>${loc}</li>`).join('')}
+                            </ul>
+                        </div>
+                    </div>`;
+                }
+                
+                if (entry.activities && entry.activities.length > 0) {
+                    html += `<div class="entry-field">
+                        <span class="entry-label">Activities:</span>
+                        <div class="entry-value">
+                            <ul class="entry-list">
+                                ${entry.activities.map(act => `<li>${act}</li>`).join('')}
+                            </ul>
+                        </div>
+                    </div>`;
+                }
+                
+                if (entry.meals && entry.meals.length > 0) {
+                    html += `<div class="entry-field">
+                        <span class="entry-label">Meals:</span>
+                        <div class="entry-value">
+                            <ul class="entry-list">
+                                ${entry.meals.map(meal => `<li>${meal}</li>`).join('')}
+                            </ul>
+                        </div>
+                    </div>`;
+                }
+                
+                if (entry.snacks && entry.snacks.length > 0) {
+                    html += `<div class="entry-field">
+                        <span class="entry-label">Snacks:</span>
+                        <div class="entry-value">
+                            <ul class="entry-list">
+                                ${entry.snacks.map(snack => `<li>${snack}</li>`).join('')}
+                            </ul>
+                        </div>
+                    </div>`;
+                }
+                
+                if (entry.moneyTransactions && entry.moneyTransactions.length > 0) {
+                    html += `<div class="entry-field">
+                        <span class="entry-label">Money:</span>
+                        <div class="entry-value">
+                            <ul class="entry-list">
+                                ${entry.moneyTransactions.map(t => `<li>${t.amount.toFixed(2)} - ${t.reason || 'No description'}</li>`).join('')}
+                            </ul>
+                        </div>
+                    </div>`;
+                }
+                
+                if (entry.mood) {
+                    html += `<div class="entry-field">
+                        <span class="entry-label">State:</span>
+                        <span class="entry-value">${entry.mood}</span>
+                    </div>`;
+                }
+                
+                if (entry.notes) {
+                    html += `<div class="entry-field">
+                        <span class="entry-label">Notes:</span>
+                        <span class="entry-value">${entry.notes}</span>
+                    </div>`;
+                }
+                
+                html += '</div></div>';
+                return html;
+            }).join('');
+            
+            entriesDiv.innerHTML = entriesHTML;
+        }
+
+        function toggleEntry(entryId) {
+            const entryElement = document.querySelector(`[onclick="toggleEntry(${entryId})"]`);
+            if (entryElement) {
+                entryElement.classList.toggle('collapsed');
+                const indicator = entryElement.querySelector('.expand-indicator');
+                if (indicator) {
+                    indicator.textContent = entryElement.classList.contains('collapsed') ? '▼' : '▲';
+                }
+            }
+        }
+
+        function formatDate(dateStr) {
+            const date = new Date(dateStr + 'T00:00:00');
+            return date.toLocaleDateString('en-US', { 
+                weekday: 'short', 
+                year: 'numeric', 
+                month: 'short', 
+                day: 'numeric' 
+            }).toUpperCase();
+        }
+
+        function exportData() {
+            const dataStr = JSON.stringify(entries, null, 2);
+            const blob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `daily-log-${new Date().toISOString().split('T')[0]}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+    </script>
+</body>
+</html>
