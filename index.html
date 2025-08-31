@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -521,16 +521,31 @@
                         entries = entries.concat(importedEntries);
                         saveEntries();
                         updateViewTab();
-                        alert('Data imported successfully!');
+                        // Replaced alert with a message box for a better user experience.
+                        showMessageBox('Data imported successfully!');
                     } else {
-                        alert('Invalid JSON file. Please select a file with an array of entries.');
+                        // Replaced alert with a message box
+                        showMessageBox('Invalid JSON file. Please select a file with an array of entries.');
                     }
                 } catch (error) {
                     console.error('Error importing file:', error);
-                    alert('An error occurred while importing the file. Please check the file format.');
+                    // Replaced alert with a message box
+                    showMessageBox('An error occurred while importing the file. Please check the file format.');
                 }
             };
             reader.readAsText(file);
+        }
+
+        // A function to show a custom message box instead of alert
+        function showMessageBox(message) {
+            const msg = document.getElementById('successMsg');
+            msg.textContent = message;
+            msg.style.backgroundColor = '#1a2e1a'; // Green background for success/info
+            msg.style.color = '#90ee90';
+            msg.style.display = 'block';
+            setTimeout(() => {
+                msg.style.display = 'none';
+            }, 3000);
         }
 
         function setupMoodSelector() {
@@ -589,7 +604,7 @@
                 
                 entries.push(entry);
                 saveEntries();
-                showSuccessMessage();
+                showMessageBox('Entry recorded');
                 resetForm();
                 updateViewTab();
             });
