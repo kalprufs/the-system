@@ -1,8 +1,11 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#0a0a0a">
+    <meta name="color-scheme" content="dark">
+    <link rel="icon" type="image/x-icon" href="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHZpZXdCb3g9IjAgMCAzMiAzMiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiByeD0iNCIgZmlsbD0iIzBhMGEwYSIvPgo8cGF0aCBkPSJNOCAxMkgxNk0xNiAxMkg4TTggMTZIMTZNMTYgMTZIOE04IDIwSDE2TTE2IDIwSDhNMjAgMTJIMjRNMjQgMTJIMjBNMjAgMTZIMjRNMjQgMTZIMjBNMjAgMjBIMjRNMjQgMjBIMjAiIHN0cm9rZT0iI2UwZTBlMCIgc3Ryb2tlLXdpZHRoPSIxLjUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPgo8L3N2Zz4K">
     <title>The System</title>
     <style>
         * {
@@ -12,11 +15,17 @@
         }
         
         body {
-            font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
             background: #0a0a0a;
             color: #e0e0e0;
             line-height: 1.6;
             min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            user-select: none;
+            -webkit-user-select: none;
+            -webkit-touch-callout: none;
+            overscroll-behavior: contain;
         }
         
         .container {
@@ -112,6 +121,8 @@
             font-family: inherit;
             color: #e0e0e0;
             transition: border-color 0.2s ease;
+            user-select: text;
+            -webkit-user-select: text;
         }
         
         input:focus, textarea:focus, select:focus {
@@ -521,31 +532,16 @@
                         entries = entries.concat(importedEntries);
                         saveEntries();
                         updateViewTab();
-                        // Replaced alert with a message box for a better user experience.
-                        showMessageBox('Data imported successfully!');
+                        alert('Data imported successfully!');
                     } else {
-                        // Replaced alert with a message box
-                        showMessageBox('Invalid JSON file. Please select a file with an array of entries.');
+                        alert('Invalid JSON file. Please select a file with an array of entries.');
                     }
                 } catch (error) {
                     console.error('Error importing file:', error);
-                    // Replaced alert with a message box
-                    showMessageBox('An error occurred while importing the file. Please check the file format.');
+                    alert('An error occurred while importing the file. Please check the file format.');
                 }
             };
             reader.readAsText(file);
-        }
-
-        // A function to show a custom message box instead of alert
-        function showMessageBox(message) {
-            const msg = document.getElementById('successMsg');
-            msg.textContent = message;
-            msg.style.backgroundColor = '#1a2e1a'; // Green background for success/info
-            msg.style.color = '#90ee90';
-            msg.style.display = 'block';
-            setTimeout(() => {
-                msg.style.display = 'none';
-            }, 3000);
         }
 
         function setupMoodSelector() {
@@ -604,7 +600,7 @@
                 
                 entries.push(entry);
                 saveEntries();
-                showMessageBox('Entry recorded');
+                showSuccessMessage();
                 resetForm();
                 updateViewTab();
             });
@@ -852,7 +848,7 @@
                         <span class="entry-label">Money:</span>
                         <div class="entry-value">
                             <ul class="entry-list">
-                                ${entry.moneyTransactions.map(t => `<li>$${t.amount.toFixed(2)} - ${t.reason || 'No description'}</li>`).join('')}
+                                ${entry.moneyTransactions.map(t => `<li>${t.amount.toFixed(2)} - ${t.reason || 'No description'}</li>`).join('')}
                             </ul>
                         </div>
                     </div>`;
